@@ -5,3 +5,10 @@
 *.tgz
 *~
 randall
+
+# mac-specific
+
+*.dSYM/
+
+# other
+.vscode/

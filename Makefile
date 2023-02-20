@@ -28,10 +28,26 @@ TAR = tar
 TARFLAGS = --gzip --transform 's,^,randall/,'
 TAREXT = tgz
 
+# bytes to check for
+
+CHECK_BYTES = 1000
+
+# compilations
+
 default: randall
 
-randall: randall.c
-	$(CC) $(CFLAGS) $@.c -o $@
+%.o: %.c %.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+randall: randall.o rand64-hw.o rand64-sw.o options.o output.o
+	$(CC) $(CFLAGS) $^ -o $@
+
+check:
+	./randall $(CHECK_BYTES) | wc | awk '{print $$3}' | grep $(CHECK_BYTES)
+	echo $$?
+
+
+# assignment related
 
 assignment: randall-assignment.$(TAREXT)
 assignment-files = COPYING Makefile randall.c
@@ -51,3 +67,4 @@ repository-tarball:
 
 clean:
 	rm -f *.o *.$(TAREXT) randall
+	rm -rf *.dSYM *~
