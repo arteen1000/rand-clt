@@ -1,4 +1,4 @@
-// send lines to output
+// send bytes to output
 
 #include "output.h"
 #include <stdio.h>
@@ -9,7 +9,7 @@ writebytes (unsigned long long x, int nbytes)
 {
   do
     {
-      if (putchar (x) < 0)
+      if (putchar ( (unsigned char) x ) < 0)
 	return false;
       x >>= CHAR_BIT;
       nbytes--;

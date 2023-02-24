@@ -1,0 +1,21 @@
+NOTES FOR ASSIGNMENT 5
+----------------------
+
+    * re-organized randall.c into headers and .c files
+    * made sure that all dependencies correct
+    * fixed Makefile to accomodate
+    * implemented 'make check' to check output length
+    commited to git
+
+    * began writing in notes.txt
+    * read entire program to understand every line
+    * separated initial parsing into options.h & options.c
+    * changed 'make check' so exit status reflects whether
+    check succeeded
+
+    * made assumption that since base option for `-i` is
+    rdrand, should fail when no option given and rdrand
+    not available
+    
+
+    

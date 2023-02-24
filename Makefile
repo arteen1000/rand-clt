@@ -36,15 +36,22 @@ CHECK_BYTES = 1000
 
 default: randall
 
+# rand64-hw.o: rand64-hw.c rand64-hw.h
+
+# rand64-sw.o: rand64-sw.c rand64-sw.h 
+
+# options.o: options.c options.h 
+
+# output.o: output.c output.h 
+
 %.o: %.c %.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-randall: randall.o rand64-hw.o rand64-sw.o options.o output.o
+randall: randall.c rand64-hw.o rand64-sw.o options.o output.o
 	$(CC) $(CFLAGS) $^ -o $@
 
 check:
-	./randall $(CHECK_BYTES) | wc | awk '{print $$3}' | grep $(CHECK_BYTES)
-	echo $$?
+	[ $$(./randall $(CHECK_BYTES) | wc -c) -eq $(CHECK_BYTES) ]
 
 
 # assignment related
