@@ -52,6 +52,7 @@ randall: randall.c rand64-hw.o rand64-sw.o options.o output.o
 
 check:
 	[ $$(./randall $(CHECK_BYTES) | wc -c) -eq $(CHECK_BYTES) ]
+	[ $$(./randall $(CHECK_BYTES) -i /dev/random | wc -c) -eq $(CHECK_BYTES) ]
 
 
 # assignment related

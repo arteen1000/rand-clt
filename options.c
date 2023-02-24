@@ -17,11 +17,13 @@ int strings_eq(char* a, char* b){
 }
 
 long long
-parse_args (int argc, char **argv){
+parse_args (int argc, char **argv, int *argv_i_index_ptr, int *num_output_bytes_ptr){
+  //  argv_o_index_ptr and num_output_bytes_ptr will not be set if corresponding options not encountered
+  // num_output_bytes > 0
+  // nbytes >= 0
   
   int it = 1;
-  bool parsing_error = false;
-  
+    
   bool prev_i = false;
   bool prev_o = false;
   int i_count = 0;
@@ -29,106 +31,109 @@ parse_args (int argc, char **argv){
   
   long long nbytes;
   bool nbytes_specified = false;
-  
-  long long num_output_bytes = 1; // default
-    
+
+  // report first parsing error encountered and terminate
   while (it < argc)
     {
       if (prev_i || prev_o)
         {
           if (prev_i)
             {
-              if (strings_eq (argv[it], "rdrand"))
+              if (strings_eq (argv[it], "rdrand") || strings_eq (argv[it], "mrand48_r")
+                  || argv[it][0] == '/')
                 {
-                  // set up call to rdrand
-                }
-              else if (strings_eq (argv[it], "mrand48_r"))
-                {
-                  // set up call to mrand48_r
-                }
-              else if (argv[it][0] == '/')
-                {
-                  // set up file path option
+                  *argv_i_index_ptr = it;
                 }
               else
                 {
                   fprintf(stderr, "%s: Invalid argument\n", argv[it]);
-                  parsing_error = true;
+                  return -1;
                 }
               
               prev_i = false;
             }
           else if (prev_o)
             {
-              if (strings_eq (argv[it], "stdio"))
-                {
-                  // use stdio output
-                }
-              else 
+              if (!strings_eq (argv[it], "stdio"))
                 {
                   char* endptr;
                   errno = 0;
-                  num_output_bytes = strtoll (argv[it], &endptr, 10);
+                  *num_output_bytes_ptr = strtoll (argv[it], &endptr, 10);
                   if (errno)
                     {
                     perror(argv[it]);
-                    parsing_error = true;
+                    return -1;
                     }
-                  else if (*endptr || num_output_bytes < 1)
-                    parsing_error = true;
+                  else if (*endptr || *num_output_bytes_ptr < 1)
+                    {
+                      fprintf(stderr, "%s: Invalid argument\n", argv[it]);
+                      return -1;
+                    }
                 }
               prev_o = false;
             }
         }
       else if (strings_eq (argv[it], "-i"))
         {
-          i_count++;
-          if (prev_i || prev_o)
-              parsing_error = true;
-          else
-            prev_i = true;
+          if (++i_count > 1)
+            {
+              fprintf(stderr, "%s: Duplicate option specifier\n", argv[it]);
+              return -1;
+            }
+
+          prev_i = true;
         }
       else if (strings_eq (argv[it], "-o"))
         {
-          o_count++;
-          if (prev_i || prev_o)
-              parsing_error = true;
-          else
-            prev_o = true;
+          if (++o_count > 1)
+            {
+              fprintf(stderr, "%s: Duplicate option specifier \n", argv[it]);
+              return -1;
+            }
+
+          prev_o = true;
         }
       else
         {
           if (nbytes_specified)
-            parsing_error = true;
-          else
             {
-               char *endptr;
-               errno = 0;
-               nbytes = strtoll (argv[it], &endptr, 10);
-               if (errno)
-                 {
-                 perror (argv[it]);
-                 parsing_error = true;
-                 }
-               else if (*endptr || nbytes < 0)
-                 parsing_error = true;
-               
-               nbytes_specified = true;
+              fprintf(stderr, "%s: Invalid argument", argv[it]);
+              return -1;
             }
+          
+          char *endptr;
+          errno = 0;
+          nbytes = strtoll (argv[it], &endptr, 10);
+          if (errno)
+            {
+              perror (argv[it]);
+              return -1;
+            }
+          else if (*endptr || nbytes < 0)
+            {
+              fprintf (stderr, "%s: Invalid argument\n", argv[it]);
+              return -1;
+            }
+
+          nbytes_specified = true;
         }
       
       it++;
     }
 
-  if (parsing_error || !nbytes_specified || prev_i || prev_o || o_count > 1 || i_count > 1)
+  if (!nbytes_specified || prev_i || prev_o)
     {
-      if (!nbytes_specified)
-        fprintf(stderr,"NBYTES must be specified: Missing argument\n");
-      if (prev_i || prev_o)
-        fprintf(stderr, "Must specify argument for option: Missing argument\n");
-      if (o_count > 1 || i_count > 1)
-        fprintf(stderr, "Duplicate options specifiers: Ambiguous declaration\n");
-        
+      if (prev_i)
+        fprintf(stderr, "-i: Missing argument\n");
+      else if (prev_o)
+        fprintf(stderr, "-o: Missing argument\n");
+      else if (!nbytes_specified)
+        fprintf(stderr,"NBYTES: Missing argument\n");
+      
+
+
       return -1;
-    } else return nbytes;
+    }
+
+  return nbytes;
 }

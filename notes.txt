@@ -26,6 +26,14 @@ NOTES FOR ASSIGNMENT 5
     * performed 'make check' to ensure correctness of program
     itself
 
+    * extended options parsing and made more accurate for use
+    with the differing -i options
+    * began implementing the -i options and separating logic,
+    added additional declarations and definitions
+    * found mrand48_r not defined on local machine, tarballing
+    and moving to lnxsrv11
+    
+
     
 
     

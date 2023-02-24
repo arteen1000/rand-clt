@@ -25,18 +25,30 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <assert.h>
 
 #include "options.h"
 #include "output.h"
 #include "rand64-hw.h"
 #include "rand64-sw.h"
 
+char *filename = 0;
+
+
 /* Main program, which outputs N bytes of random data.  */
+
+static_assert(sizeof(unsigned long long) == sizeof(long));
+
 int
 main (int argc, char **argv)
 {
-
-  long long nbytes = parse_args(argc, argv);
+  int num_output_bytes = -1; // if set, will be positive integer
+  int argv_i_index = -1;
+  
+  long long nbytes = parse_args(argc, argv, // natural number
+                                &argv_i_index,
+                                &num_output_bytes);
   
   if (nbytes == -1)
     {
@@ -52,19 +64,31 @@ main (int argc, char **argv)
   void (*initialize) (void);
   unsigned long long (*rand64) (void);
   void (*finalize) (void);
-  if (rdrand_supported ())
+
+  if (argv_i_index == -1 || strings_eq (argv[argv_i_index], "rdrand"))
     {
+      if (! rdrand_supported ())
+        return 1;
+      
       initialize = hardware_rand64_init;
       rand64 = hardware_rand64;
       finalize = hardware_rand64_fini;
     }
-  else
+  else if (argv[argv_i_index][0] == '/')
     {
+      filename = argv[argv_i_index];
       initialize = software_rand64_init;
       rand64 = software_rand64;
       finalize = software_rand64_fini;
     }
-
+  else if (strings_eq (argv[argv_i_index], "mrand48_r"))
+    {
+      initialize = mrand48_init;
+      rand64 = mrand48_wrapper;
+      finalize = mrand48_fini;
+    }
+  else return 1;
+  
   initialize ();
   int wordsize = sizeof rand64 ();
   int output_errno = 0;

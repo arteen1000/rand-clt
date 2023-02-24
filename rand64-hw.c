@@ -34,7 +34,7 @@ hardware_rand64_init (void)
 
 /* Return a random value, using hardware operations.  */
 unsigned long long
-hardware_rand64 (void)
+hardware_rand64 (void) // will fill and return an unsigned long long
 {
   unsigned long long int x;
 
