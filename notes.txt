@@ -16,6 +16,19 @@ NOTES FOR ASSIGNMENT 5
     * made assumption that since base option for `-i` is
     rdrand, should fail when no option given and rdrand
     not available
+
+    * implemented options parsing by going through argv[]
+    step by step and checking for all possible inputs
+    manually
+    * refactored code in randall.c to fit within implementation
+    * checked all possible test cases (option combinations)
+    and ensured correctness
+    * performed 'make check' to ensure correctness of program
+    itself
+
+    
+
+    
     
 
     

@@ -2,8 +2,6 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
-#include <stdbool.h>
-
-long long parse_args(bool*, int, char**);
+long long parse_args (int, char**);
                      
 #endif

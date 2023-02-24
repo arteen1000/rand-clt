@@ -23,7 +23,6 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -37,11 +36,13 @@ int
 main (int argc, char **argv)
 {
 
-  bool valid = false;
-  long long nbytes = parse_args(&valid, argc, argv);
-  if (!valid)
+  long long nbytes = parse_args(argc, argv);
+  
+  if (nbytes == -1)
     {
-      fprintf (stderr, "%s: usage: %s NBYTES\n", argv[0], argv[0]);
+      fprintf (stderr, "%s: usage: %s NBYTES "
+               "[ -i [ rdrand | mrand48_r | /absolute/file/path ] ]"
+               " [ -o [ stdio | N ] ]\n", argv[0], argv[0]);
       return 1;
     }
 
