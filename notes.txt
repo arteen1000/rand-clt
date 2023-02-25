@@ -132,3 +132,27 @@ Notice the timing difference between ‘-i /dev/random’ and ‘-i /dev/urandom
 I am not entirely sure why this is.  
 
     
+I noticed about a 1.33x speedup with the -O3 flag, here is a couple tests I ran with it:
+
+[lnxrv11]$ time ./randall 133562368 >/dev/null
+
+real	0m3.148s
+user	0m3.122s
+sys	0m0.011s
+[lnxsrv11]$ time ./randall 133562368 -i /dev/urandom >/dev/null
+
+real	0m1.807s
+user	0m0.891s
+sys	0m0.905s
+
+[lnxsrv11]$ time ./randall 133562368 | cat >/dev/null
+
+real	0m3.300s
+user	0m3.174s
+sys	0m0.245s
+
+[lnxsrv11]$ time ./randall 133562368 > rand.data
+
+real	0m4.744s
+user	0m3.086s
+sys	0m0.120s

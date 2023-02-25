@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 # Optimization level.  Change this -O2 to -Og or -O0 or whatever.
-OPTIMIZE =
+OPTIMIZE = -O3
 
 # The C compiler and its options.
 CC = gcc
@@ -69,7 +69,8 @@ check:
 # assignment related
 
 assignment: randall-assignment.$(TAREXT)
-assignment-files = COPYING Makefile randall.c
+assignment-files = COPYING Makefile randall.c options.c options.h output.c output.h \
+rand64-hw.c rand64-hw.h rand64-sw.c rand64-sw.h
 randall-assignment.$(TAREXT): $(assignment-files)
 	$(TAR) $(TARFLAGS) -cf $@ $(assignment-files)
 
@@ -80,10 +81,9 @@ randall-submission.$(TAREXT): $(submission-files)
 	$(TAR) $(TARFLAGS) -cf $@ $(submission-files)
 
 repository-tarball:
-	$(TAR) -czf randall-git.tgz .git
+	$(TAR) -czf randall-git.tgz .git .gitignore
 
 .PHONY: default clean assignment submission-tarball repository-tarball
 
 clean:
 	rm -f *.o *.$(TAREXT) randall
-	rm -rf *.dSYM *~

@@ -30,7 +30,7 @@ parse_args (int argc, char **argv, int *argv_i_index_ptr, unsigned int *num_outp
   int i_count = 0;
   int o_count = 0;
   
-  long long nbytes;
+  long long nbytes = -1;
   bool nbytes_specified = false;
 
   // report first parsing error encountered and terminate
