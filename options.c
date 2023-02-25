@@ -17,10 +17,11 @@ int strings_eq(char* a, char* b){
 }
 
 long long
-parse_args (int argc, char **argv, int *argv_i_index_ptr, int *num_output_bytes_ptr){
-  //  argv_o_index_ptr and num_output_bytes_ptr will not be set if corresponding options not encountered
-  // num_output_bytes > 0
-  // nbytes >= 0
+parse_args (int argc, char **argv, int *argv_i_index_ptr, unsigned int *num_output_bytes_ptr){
+  //  argv_o_index_ptr and num_output_bytes_ptr will not be set
+  // if corresponding options not encountered
+  // num_output_bytes must be > 0
+  // nbytes must be >= 0
   
   int it = 1;
     

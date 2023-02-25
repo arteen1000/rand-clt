@@ -53,7 +53,18 @@ randall: randall.c rand64-hw.o rand64-sw.o options.o output.o
 check:
 	[ $$(./randall $(CHECK_BYTES) | wc -c) -eq $(CHECK_BYTES) ]
 	[ $$(./randall $(CHECK_BYTES) -i /dev/random | wc -c) -eq $(CHECK_BYTES) ]
-
+	[ $$(./randall $(CHECK_BYTES) -i mrand48_r | wc -c) -eq $(CHECK_BYTES) ]
+	[ $$(./randall $(CHECK_BYTES) -i rdrand | wc -c) -eq $(CHECK_BYTES) ]
+	[ $$(./randall $(CHECK_BYTES) -o stdio | wc -c) -eq $(CHECK_BYTES) ]
+	[ $$(./randall $(CHECK_BYTES) -o 1 | wc -c) -eq $(CHECK_BYTES) ]
+	[ $$(./randall $(CHECK_BYTES) -o 7 | wc -c) -eq $(CHECK_BYTES) ]
+	[ $$(./randall $(CHECK_BYTES) -o 67 | wc -c) -eq $(CHECK_BYTES) ]
+	[ $$(./randall $(CHECK_BYTES) -o $$(( $(CHECK_BYTES) + 7 ))  | wc -c) -eq $(CHECK_BYTES) ]
+	[ $$(./randall $(CHECK_BYTES) -o 1 -i /dev/random | wc -c) -eq $(CHECK_BYTES) ]
+	[ $$(./randall $(CHECK_BYTES) -o 7 -i mrand48_r | wc -c) -eq $(CHECK_BYTES) ]
+	[ $$(./randall $(CHECK_BYTES) -o 67 -i rdrand | wc -c) -eq $(CHECK_BYTES) ]
+	[ $$(./randall $(CHECK_BYTES) -o 1007 -i mrand48_r | wc -c) -eq $(CHECK_BYTES) ]
+# final check avoids using $$(( $(CHECK_BYTES) + 7 )) due to the length limit
 
 # assignment related
 

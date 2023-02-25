@@ -33,10 +33,102 @@ NOTES FOR ASSIGNMENT 5
     * found mrand48_r not defined on local machine, tarballing
     and moving to lnxsrv11
     
+    * completed implementation, used malloc(), free(), memset(),
+    memcpy() for the -o N option
+    * did this by traversing the buffer I allocated, checking
+    boundaries, and always memcpy() only the allowed amount
+    (either sizeof(unsigned long long) or the amount allowed)
+    until the buffer was filled for every iteration
+    
+    * extended test cases in 'make check' to include all possible
+    combinations of options, passes in all cases
+    * also checked all possible combinations of incorrect options
+    for error messages and warnings
+    * ran through valgrind with all test cases listed on 'make
+    check', made modifications such that all pass with 0 errors,
+    even noisy ones, and made sure that heap blocks freed correctly
+    * in addition, ran 'strace' to track write() system calls for
+    -o N option, and confirmed that will always follow spec defined
+    behavior -- > write N if it can, M < N if not, for example:
 
-    
+    $ ./randall 100 -o 7
 
+    will write 7 14 times and write 2 the last time.
+
+    $ ./randall 100 -o 104
+
+    will write 100 a single time
+
+TIMING RESULTS
+--------------
     
-    
+[lnxsrv11]$ time dd if=/dev/urandom ibs=8192 obs=8192 count=16384 >/dev/null
+16384+0 records in
+16384+0 records out
+134217728 bytes (134 MB, 128 MiB) copied, 0.920524 s, 146 MB/s
+
+real	0m0.924s
+user	0m0.010s
+sys	0m0.904s
+
+[lnxsrv11]$ time ./randall 133562368 >/dev/null
+real	0m4.116s
+user	0m4.079s
+sys	0m0.014s
+
+[lnxsrv11]$ time ./randall 133562368 | cat >/dev/null
+
+real	0m4.181s
+user	0m4.029s
+sys	0m0.293s
+[lnxsrv11]$ time ./randall 133562368 >rand.data
+
+real	0m5.619s
+user	0m4.057s
+sys	0m0.142s
+
+[lnxsrv11]$ time ./randall 133562368 -i /dev/urandom > /dev/null
+
+real	0m2.632s
+user	0m1.677s
+sys	0m0.944s
+
+[lnxsrv11]$ time ./randall 133562368 -i /dev/urandom -o 10000 > /dev/null
+
+real	0m0.012s
+user	0m0.004s
+sys	0m0.008s
+
+[lnxsrv11]$ time ./randall 133562368 -i /dev/urandom -o 133562369 > /dev/null 
+real	0m0.036s
+user	0m0.017s
+sys	0m0.019s
+
+[lnxsrv11]$ time ./randall 133562368 -i mrand48_r > /dev/null
+
+real	0m1.569s
+user	0m1.543s
+sys	0m0.021s
+
+[lnxsrv11]$ time ./randall 133562368 -i mrand48_r -o 10000 > /dev/null
+
+real	0m0.011s
+user	0m0.007s
+sys	0m0.004s
+
+[lnxsrv11]$ time ./randall 133562368 -i rdrand -o 10000 > /dev/null
+
+real	0m0.013s
+user	0m0.006s
+sys	0m0.007s
+
+[lnxsrv11]$ time ./randall 133562368 -i /dev/random > /dev/null
+
+real	1m36.008s
+user	0m2.684s
+sys	1m6.638s
+
+Notice the timing difference between ‘-i /dev/random’ and ‘-i /dev/urandom.
+I am not entirely sure why this is.  
 
     

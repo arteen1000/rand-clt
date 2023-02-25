@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <assert.h>
 
 #include "options.h"
@@ -35,15 +36,14 @@
 
 char *filename = 0;
 
+static_assert(sizeof(char) == 1);
 
 /* Main program, which outputs N bytes of random data.  */
-
-static_assert(sizeof(unsigned long long) == sizeof(long));
 
 int
 main (int argc, char **argv)
 {
-  int num_output_bytes = -1; // if set, will be positive integer
+  unsigned int num_output_bytes = 0; // if set, will be positive integer
   int argv_i_index = -1;
   
   long long nbytes = parse_args(argc, argv, // natural number
@@ -69,7 +69,6 @@ main (int argc, char **argv)
     {
       if (! rdrand_supported ())
         return 1;
-      
       initialize = hardware_rand64_init;
       rand64 = hardware_rand64;
       finalize = hardware_rand64_fini;
@@ -90,10 +89,14 @@ main (int argc, char **argv)
   else return 1;
   
   initialize ();
+  
   int wordsize = sizeof rand64 ();
   int output_errno = 0;
 
-  do
+  if (num_output_bytes == 0) // stdio
+    {
+      
+      do
     {
       unsigned long long x = rand64 ();
       int outbytes = nbytes < wordsize ? nbytes : wordsize;
@@ -104,8 +107,51 @@ main (int argc, char **argv)
 	}
       nbytes -= outbytes;
     }
-  while (0 < nbytes);
+      while (0 < nbytes);
+      
+    }
+  else { // guaranteed to be > 0 integer
+    char *buf = (char*) malloc(num_output_bytes);
+    if (!buf){
+      fprintf(stderr, "Allocation failure");
+      return 1;
+    }
+    int size_of_buf = num_output_bytes;
+    memset(buf, 0, num_output_bytes);
+    do {
+      
+      if (nbytes < num_output_bytes)
+	num_output_bytes = nbytes;
 
+      unsigned int bytes_written_buffer = 0;
+      char *traverser = buf;
+      while (bytes_written_buffer < num_output_bytes && traverser != buf + size_of_buf)
+	{
+	  unsigned long long x = rand64 ();
+	  int bytes_to_write =
+	    sizeof(unsigned long long) > num_output_bytes ?
+	    num_output_bytes : sizeof(unsigned long long);
+	  
+	  memcpy(traverser, &x, bytes_to_write);
+	  traverser += bytes_to_write;
+	  bytes_written_buffer += num_output_bytes;
+	}
+	
+      long bytes_written_stdout = 0;
+      
+      if (-1 == (bytes_written_stdout =
+		 write(STDOUT_FILENO, buf, num_output_bytes))){
+	output_errno = errno;
+	break;
+      }
+      
+      nbytes -= bytes_written_stdout;
+    }
+    while (0 < nbytes);
+
+    free(buf);
+  }
+  
   if (fclose (stdout) != 0)
     output_errno = errno;
 

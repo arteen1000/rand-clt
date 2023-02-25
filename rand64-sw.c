@@ -4,8 +4,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+#include <assert.h>
+#include <time.h>
 
-/* Software implementation.  */
+// assumption for mrand48_r
+static_assert(sizeof(long) == sizeof(unsigned long long));
+
 
 /* Input stream containing random bytes.  */
 static FILE *urandstream;
@@ -44,7 +48,12 @@ software_rand64_fini (void)
 void
 mrand48_init (void)
 {
-  buffer = seed48_r();
+  // zero-filled by default, no init necessary
+  // memset(&buffer, 0, sizeof(buffer)); same behavior
+  // deterministic seed ^
+  
+  // undeterministic seed 
+  //  srand48_r(time(0), &buffer);
 }
 
 // generate values
