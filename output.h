@@ -7,4 +7,7 @@
 bool
 writebytes (unsigned long long x, int nbytes);
 
+long
+unnecessary_call_write_sys(char*, unsigned int);
+
 #endif

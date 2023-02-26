@@ -156,3 +156,16 @@ sys	0m0.245s
 real	0m4.744s
 user	0m3.086s
 sys	0m0.120s
+
+I then created a wrapper function to put it the call to
+write in output.c/output.h because that is how Jason wants it,
+and unsurprisingly, due to the extra stack and lack of inlining
+(my function just returns the value of the write system call):
+
+[lnxsrv11]$ time ./randall 133562368 >/dev/null
+
+real	0m3.208s
+user	0m3.176s
+sys	0m0.017s
+
+the performance decreased by about 2%.

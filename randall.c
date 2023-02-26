@@ -26,7 +26,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <assert.h>
 
 #include "options.h"
@@ -140,7 +139,7 @@ main (int argc, char **argv)
       long bytes_written_stdout = 0;
       
       if (-1 == (bytes_written_stdout =
-		 write(STDOUT_FILENO, buf, num_output_bytes))){
+		 unnecessary_call_write_sys(buf, num_output_bytes))){
 	output_errno = errno;
 	break;
       }
