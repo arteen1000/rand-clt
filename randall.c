@@ -22,6 +22,15 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
+
+/*
+  Modified and extended to be command line tool
+  with additional functionality, modularization beyond simple
+  random number generation using mdrand and rdrand_64
+  
+  
+  Copyright 2023 Arteen Abrishami */
+
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
