@@ -20,3 +20,4 @@ writebytes (unsigned long long x, int nbytes)
   return true;
 }
 
+extern inline long unnecessary_call_write_sys(char*, unsigned int);
